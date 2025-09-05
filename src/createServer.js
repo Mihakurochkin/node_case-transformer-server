@@ -1,15 +1,12 @@
 const http = require('http');
-const { detectCase } = require('./convertToCase/detectCase');
-const { toWords } = require('./convertToCase/toWords');
-const { wordsToCase } = require('./convertToCase/wordsToCase');
-const DEFAULT_PORT = process.env.PORT;
+const { convertToCase } = require('./convertToCase/convertToCase');
 
-function createServer(port = DEFAULT_PORT) {
+function createServer() {
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
-    const originalCase = detectCase(url.pathname.slice(1));
     const originalText = url.pathname.slice(1);
     const targetCase = url.searchParams.get('toCase');
+
     const supportedCases = ['SNAKE', 'KEBAB', 'CAMEL', 'PASCAL', 'UPPER'];
 
     const errorMessages = {
@@ -42,21 +39,23 @@ function createServer(port = DEFAULT_PORT) {
 
     if (errors.length > 0) {
       res.statusCode = 400;
-      res.statusMessage = 'Bad Request';
+      res.statusMessage = 'Bad request';
       res.write(JSON.stringify({ errors }));
       res.end();
 
       return;
     }
 
+    const { originalCase, convertedText } = convertToCase(
+      originalText,
+      targetCase,
+    );
+
     const response = {
       originalCase: originalCase,
       targetCase: targetCase,
       originalText: originalText,
-      convertedText: wordsToCase(
-        toWords(originalText, originalCase),
-        targetCase,
-      ),
+      convertedText: convertedText,
     };
 
     res.statusCode = 200;
@@ -68,4 +67,4 @@ function createServer(port = DEFAULT_PORT) {
   return server;
 }
 
-module.exports = { createServer, DEFAULT_PORT };
+module.exports = { createServer };
