@@ -80,7 +80,7 @@ Function return the next object:
 
 For example:
 ```javascript
-const result = convertToCase('UPPER', 'writeFile');
+const result = convertToCase('writeFile', 'UPPER');
 
 console.log(result); // { originalCase: 'CAMEL', convertedText: 'WRITE_FILE' }
 ```
